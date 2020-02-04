@@ -5,6 +5,13 @@ const cors = require("cors");
 app.use(cors());
 
 const {
+  getAllDiseases,
+  postOneDisease,
+  getDisease,
+  deleteDisease
+} = require("./handlers/diseases");
+
+const {
   getAllDoctors,
   postOneDoctor,
   uploadDoctorImage,
@@ -13,9 +20,17 @@ const {
   deleteDoctor
 } = require("./handlers/doctors");
 
-const { getAllMedications } = require("./handlers/medication");
+const {
+  getAllMedications,
+  postOneMedication,
+  uploadMedicationImage
+} = require("./handlers/medication");
 
-const { getAllPlaces } = require("./handlers/places");
+const {
+  getAllPlaces,
+  postOnePlace,
+  uploadPlaceImage
+} = require("./handlers/places");
 
 const {
   login,
@@ -23,6 +38,11 @@ const {
   getAuthenticatedUser
 } = require("./handlers/users");
 const FBAuth = require("./util/fbAuth");
+
+app.get("/diseases", getAllDiseases);
+app.post("/disease", postOneDisease);
+app.get("/disease/:doctorId", getDoctor);
+app.delete("/disease/:diseaseId", FBAuth, deleteDisease);
 
 // doctor routes
 app.get("/doctors", getAllDoctors);
@@ -34,9 +54,13 @@ app.delete("/doctor/:doctorId", FBAuth, deleteDoctor);
 
 // medication routes
 app.get("/medications", getAllMedications);
+app.post("/medication", postOneMedication);
+app.post("/medication/image", uploadMedicationImage);
 
 // places routes
 app.get("/places", getAllPlaces);
+app.post("/place", postOnePlace);
+app.post("/place/image", uploadPlaceImage);
 
 // Users handle route
 app.post("/login", login);

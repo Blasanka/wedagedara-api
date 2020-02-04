@@ -1,5 +1,5 @@
 const isEmpty = string => {
-  if (string.trim() === "") return true;
+  if (string !== undefined && string.trim() === "") return true;
   else return false;
 };
 
@@ -61,26 +61,74 @@ exports.reduceUserDetails = data => {
   return userDetails;
 };
 
-exports.validateAddStudentData = data => {
+exports.validateAddDoctorData = data => {
   const errors = {};
+  const message = "Must not be empty!";
 
-  if (isEmpty(data.fullname)) errors.fullname = "Must not be empty!";
-  if (isEmpty(data.nic)) errors.nic = "Must not be empty";
-  if (isEmpty(data.index)) errors.index = "Must not be empty!";
-  if (isEmpty(data.department)) errors.department = "Must not be empty";
-  if (isEmpty(data.address)) errors.address = "Must not be empty!";
-  if (isEmpty(data.mobile_number)) errors.mobile_number = "Must not be empty";
-  if (isEmpty(data.parents_number))
-    errors.parents_number = "Must not be empty!";
-  if (isEmpty(data.dob)) errors.dob = "Must not be empty";
-  if (isEmpty(data.gender)) errors.gender = "Must not be empty";
-  if (isEmpty(data.religion)) errors.religion = "Must not be empty";
+  if (isEmpty(data.name)) errors.name = message;
+  if (isEmpty(data.description)) errors.description = message;
+  if (isEmpty(data.image_url)) errors.image_url = message;
+  if (isEmpty(data.location)) errors.location = message;
 
-  if (isEmpty(data.email)) {
-    errors.email = "Must not be empty!";
-  } else if (!isEmail(data.email)) {
-    errors.email = "Must be a valid email address!";
+  if (isEmpty(data.phone_number)) {
+    if (data.phone_number.length < 9)
+      errors.phone_number = "Cannot be less than 9 characters";
+    else if (!data.phone_number.match(/^[0-9]+$/))
+      errors.phone_number = "Enter a valid telephone number";
   }
+  return {
+    errors,
+    valid: Object.keys(errors).length === 0 ? true : false
+  };
+};
+
+exports.validateAddMediData = data => {
+  const errors = {};
+  const message = "Must not be empty!";
+
+  if (isEmpty(data.name)) errors.name = message;
+  if (isEmpty(data.description)) errors.description = message;
+  if (isEmpty(data.image_url)) errors.image_url = message;
+  if (isEmpty(data.location)) errors.location = message;
+
+  return {
+    errors,
+    valid: Object.keys(errors).length === 0 ? true : false
+  };
+};
+
+exports.validateAddPlaceData = data => {
+  const errors = {};
+  const message = "Must not be empty!";
+
+  if (isEmpty(data.name)) errors.name = message;
+  if (isEmpty(data.description)) errors.description = message;
+  if (isEmpty(data.image_url)) errors.image_url = message;
+  if (isEmpty(data.duration)) errors.duration = message;
+
+  if (isEmpty(data.phone_number)) {
+    if (data.phone_number.length < 9)
+      errors.phone_number = "Cannot be less than 9 characters";
+    else if (!data.phone_number.match(/^[0-9]+$/))
+      errors.phone_number = "Enter a valid telephone number";
+  }
+
+  return {
+    errors,
+    valid: Object.keys(errors).length === 0 ? true : false
+  };
+};
+
+exports.validateAddDiseaseData = data => {
+  const errors = {};
+  const message = "Must not be empty!";
+
+  if (isEmpty(data.name)) errors.name = message;
+  if (isEmpty(data.description)) errors.description = message;
+  if (isEmpty(data.cause)) errors.cause = message;
+  if (isEmpty(data.solution)) errors.solution = message;
+  if (isEmpty(data.medication_goods)) errors.medication_goods = message;
+  if (isEmpty(data.prepare_method)) errors.prepare_method = message;
 
   return {
     errors,

@@ -2,7 +2,7 @@ const { admin, db } = require("../util/admin");
 
 const firebaseConfig = require("../util/config");
 
-const { validateAddStudentData } = require("../util/validators");
+const { validateAddDoctorData } = require("../util/validators");
 
 exports.getAllDoctors = (req, res) => {
   try {
@@ -13,11 +13,11 @@ exports.getAllDoctors = (req, res) => {
           let docData = doc.val();
           doctors.push({
             doctorId: docData.doctor_id,
-            fullname: docData.full_name,
             imageUrl: docData.image_url,
+            name: docData.name,
             location: docData.location,
             phoneNumber: docData.phone_number,
-            searchFullName: docData.search_full_name,
+            searchName: docData.search_name,
             searchLocation: docData.search_location
           });
         });
@@ -33,39 +33,46 @@ exports.getAllDoctors = (req, res) => {
 };
 
 exports.postOneDoctor = (req, res) => {
-  const newStudent = {
-    fullname: req.body.fullname,
-    nic: req.body.nic,
-    index: req.body.index,
-    department: req.body.department,
-    address: req.body.address,
-    email: req.body.email,
-    mobile_number: req.body.mobile_number,
-    parents_number: req.body.parents_number,
-    dob: req.body.dob,
-    gender: req.body.gender,
-    religion: req.body.religion,
-    imageUrl: req.body.imageUrl,
-    createdAt: new Date().toISOString()
+  const docData = req.body;
+  const newDoctor = {
+    image_url:
+      docData.image_url ||
+      "https://firebasestorage.googleapis.com/v0/b/wedagedara-717e9.appspot.com/o/no_user.png?alt=media",
+    name: docData.name,
+    location: docData.location,
+    description: docData.description,
+    phone_number: docData.phone_number,
+    search_name: docData.search_name,
+    search_location: docData.search_location,
+    created_at: new Date().toISOString()
   };
 
-  const { valid, errors } = validateAddStudentData(newStudent);
+  const { valid, errors } = validateAddDoctorData(newDoctor);
 
   if (!valid) return res.status(400).json(errors);
 
-  return db
-    .collection("students")
-    .add(newStudent)
-    .then(doc => {
-      const resStudent = newStudent;
-      resStudent.studentId = doc.id;
-      return res.json(resStudent);
-    })
-    .catch(err => {
+  const docRef = db.ref("doctors");
+  const newRef = docRef.push();
+  docRef.child(newRef.key).set(newDoctor, err => {
+    if (err) {
       console.error(err);
       return res.status(500).json({ error: "Something went wrong!" });
-    });
+    } else {
+      console.log("Successfully submitted!");
+      return res.status(200).json({ message: "Successfully submitted!" });
+    }
+  });
 };
+
+// .then(() => {
+//   // const resDoctor = doc;
+//   // resDoctor.doctor_id = newRef.key;
+//   return res.json({ message: "Successfully submitted!" });
+// })
+// .catch(err => {
+//   console.error(err);
+//   return res.status(500).json({ error: "Something went wrong!" });
+// })
 
 exports.getDoctor = (req, res) => {
   let doctorData = {};
@@ -148,7 +155,7 @@ exports.uploadDoctorImage = (req, res) => {
         return imageUrl;
       })
       .then(url => {
-        return res.json({ imageUrl: url });
+        return res.json({ image_url: url });
       })
       .catch(err => {
         console.error(err);
@@ -163,7 +170,7 @@ exports.updateDoctorImage = (req, res) => {
     imageUrl: req.body.imageUrl
   };
 
-  db.doc(`students/${req.body.studentId}`)
+  db.doc(`doctor/${req.body.doctorId}`)
     .update({ imageUrl })
     .then(() => {
       return res.json({ message: "Image uploaded succesfully!" });
