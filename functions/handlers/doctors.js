@@ -12,11 +12,12 @@ exports.getAllDoctors = (req, res) => {
         snapshot.forEach(doc => {
           let docData = doc.val();
           doctors.push({
-            doctorId: docData.doctor_id,
-            imageUrl: docData.image_url,
+            id: docData.id,
+            image_url: docData.image_url,
             name: docData.name,
             location: docData.location,
-            phoneNumber: docData.phone_number,
+            phone_number: docData.phone_number,
+            description: docData.description,
             searchName: docData.search_name,
             searchLocation: docData.search_location
           });
@@ -53,6 +54,7 @@ exports.postOneDoctor = (req, res) => {
 
   const docRef = db.ref("doctors");
   const newRef = docRef.push();
+  newDoctor.id = newRef.key;
   docRef.child(newRef.key).set(newDoctor, err => {
     if (err) {
       console.error(err);
@@ -60,6 +62,38 @@ exports.postOneDoctor = (req, res) => {
     } else {
       console.log("Successfully submitted!");
       return res.status(200).json({ message: "Successfully submitted!" });
+    }
+  });
+};
+
+exports.updateDoctor = (req, res) => {
+  const docData = req.body;
+  const updatedDoc = {
+    id: req.params.id,
+    image_url:
+      docData.image_url ||
+      "https://firebasestorage.googleapis.com/v0/b/wedagedara-717e9.appspot.com/o/no_user.png?alt=media",
+    name: docData.name,
+    location: docData.location,
+    description: docData.description,
+    phone_number: docData.phone_number,
+    search_name: docData.search_name,
+    search_location: docData.search_location,
+    updated_at: new Date().toISOString()
+  };
+
+  const { valid, errors } = validateAddDoctorData(updatedDoc);
+
+  if (!valid) return res.status(400).json(errors);
+
+  const docRef = db.ref("doctors");
+  docRef.child(req.params.id).set(updatedDoc, err => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Something went wrong!" });
+    } else {
+      console.log("Successfully updated!");
+      return res.status(200).json({ message: "Successfully updated!" });
     }
   });
 };
@@ -93,25 +127,15 @@ exports.getDoctor = (req, res) => {
 };
 
 exports.deleteDoctor = (req, res) => {
-  const document = db.doc(`/doctors/${req.params.studentId}`);
-
-  document
-    .get()
-    .then(doc => {
-      if (!doc.exists) {
-        return res.status(404).json({ error: "Doctor not found!" });
-      }
-      if (req.user.handle !== doc.data().userHandle) {
-        return res.status(403).json({ error: "Unauthorized" });
-      } else {
-        return document.delete();
-      }
-    })
+  const node = db.ref(`/doctors/${req.params.id}`);
+  node
+    .remove()
     .then(() => {
-      return res.json({ message: "Doctor deleted successfully!" });
+      return res.status(200).json({ message: "Doctor successfully deleted!" });
     })
-    .catch(err => {
-      return res.status(500).json({ error: err.code });
+    .catch(error => {
+      console.log(error);
+      return res.status(404).json({ error: "Doctor not found!" });
     });
 };
 

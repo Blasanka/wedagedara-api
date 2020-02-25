@@ -8,12 +8,14 @@ const {
   getAllDiseases,
   postOneDisease,
   getDisease,
-  deleteDisease
+  deleteDisease,
+  updateDisease
 } = require("./handlers/diseases");
 
 const {
   getAllDoctors,
   postOneDoctor,
+  updateDoctor,
   uploadDoctorImage,
   updateDoctorImage,
   getDoctor,
@@ -23,26 +25,31 @@ const {
 const {
   getAllMedications,
   postOneMedication,
-  uploadMedicationImage
+  uploadMedicationImage,
+  deleteMedication,
+  updateMedication
 } = require("./handlers/medication");
 
 const {
   getAllPlaces,
   postOnePlace,
-  uploadPlaceImage
+  uploadPlaceImage,
+  deletePlace,
+  updatePlace
 } = require("./handlers/places");
 
 const {
   login,
-  addUserDetails,
+  // addUserDetails,
   getAuthenticatedUser
 } = require("./handlers/users");
 const FBAuth = require("./util/fbAuth");
 
 app.get("/diseases", getAllDiseases);
 app.post("/disease", postOneDisease);
-app.get("/disease/:doctorId", getDoctor);
-app.delete("/disease/:diseaseId", FBAuth, deleteDisease);
+app.get("/disease/:doctorId", getDisease);
+app.delete("/disease/:id", deleteDisease);
+app.put("/disease/:id", updateDisease);
 
 // doctor routes
 app.get("/doctors", getAllDoctors);
@@ -50,21 +57,27 @@ app.post("/doctor", postOneDoctor);
 app.post("/doctor/image", uploadDoctorImage);
 app.post("/doctor/update_image", updateDoctorImage);
 app.get("/doctor/:doctorId", getDoctor);
-app.delete("/doctor/:doctorId", FBAuth, deleteDoctor);
+app.delete("/doctor/:id", deleteDoctor); //FBAuth
+app.put("/doctor/:id", updateDoctor);
 
 // medication routes
 app.get("/medications", getAllMedications);
 app.post("/medication", postOneMedication);
 app.post("/medication/image", uploadMedicationImage);
+app.delete("/medication/:id", deleteMedication); //FBAuth
+app.put("/medication/:id", updateMedication);
 
 // places routes
 app.get("/places", getAllPlaces);
 app.post("/place", postOnePlace);
 app.post("/place/image", uploadPlaceImage);
+app.delete("/place/:id", deletePlace); //FBAuth
+app.put("/place/:id", updatePlace);
 
 // Users handle route
 app.post("/login", login);
 app.get("/user", FBAuth, getAuthenticatedUser);
+// app.post("/signup", addUserDetails);
 
 // This is the api url patter when we use export.api -> https:baseurl.com/api/
 exports.api = functions.region("asia-east2").https.onRequest(app);

@@ -12,10 +12,11 @@ exports.getAllMedications = (req, res) => {
         snapshot.forEach(doc => {
           let docData = doc.val();
           medications.push({
+            id: docData.id,
             name: docData.name,
             description: docData.description,
-            imageUrl: docData.image_url,
-            location: docData.location
+            image_url: docData.image_url,
+            location: docData.locations
           });
         });
         return res.json(medications);
@@ -36,7 +37,7 @@ exports.postOneMedication = (req, res) => {
       docData.image_url ||
       "https://firebasestorage.googleapis.com/v0/b/wedagedara-717e9.appspot.com/o/no_user.png?alt=media",
     name: docData.name,
-    location: docData.location,
+    locations: docData.location,
     description: docData.description,
     search_name: docData.search_name,
     search_location: docData.search_location,
@@ -49,6 +50,7 @@ exports.postOneMedication = (req, res) => {
 
   const docRef = db.ref("medication");
   const newRef = docRef.push();
+  newMedi.id = newRef.key;
   docRef.child(newRef.key).set(newMedi, err => {
     if (err) {
       console.error(err);
@@ -58,6 +60,52 @@ exports.postOneMedication = (req, res) => {
       return res.status(200).json({ message: "Successfully submitted!" });
     }
   });
+};
+
+exports.updateMedication = (req, res) => {
+  const docData = req.body;
+  const updatedDoc = {
+    id: req.params.id,
+    image_url:
+      docData.image_url ||
+      "https://firebasestorage.googleapis.com/v0/b/wedagedara-717e9.appspot.com/o/no_user.png?alt=media",
+    name: docData.name,
+    locations: docData.location,
+    description: docData.description,
+    search_name: docData.search_name,
+    search_location: docData.search_location,
+    updated_at: new Date().toISOString()
+  };
+
+  const { valid, errors } = validateAddMediData(updatedDoc);
+
+  if (!valid) return res.status(400).json(errors);
+
+  const docRef = db.ref("medication");
+  docRef.child(req.params.id).set(updatedDoc, err => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Something went wrong!" });
+    } else {
+      console.log("Successfully updated!");
+      return res.status(200).json({ message: "Successfully updated!" });
+    }
+  });
+};
+
+exports.deleteMedication = (req, res) => {
+  const node = db.ref(`/medication/${req.params.id}`);
+  node
+    .remove()
+    .then(() => {
+      return res
+        .status(200)
+        .json({ message: "Medication successfully deleted!" });
+    })
+    .catch(error => {
+      console.log(error);
+      return res.status(404).json({ error: "Medication not found!" });
+    });
 };
 
 exports.uploadMedicationImage = (req, res) => {

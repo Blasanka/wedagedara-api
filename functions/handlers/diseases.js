@@ -1,6 +1,6 @@
-const { admin, db } = require("../util/admin");
+const { db } = require("../util/admin");
 
-const firebaseConfig = require("../util/config");
+// const firebaseConfig = require("../util/config");
 
 const { validateAddDiseaseData } = require("../util/validators");
 
@@ -12,6 +12,7 @@ exports.getAllDiseases = (req, res) => {
         snapshot.forEach(doc => {
           let docData = doc.val();
           diseases.push({
+            id: docData.id,
             name: docData.name,
             description: docData.description,
             cause: docData.cause,
@@ -33,7 +34,7 @@ exports.getAllDiseases = (req, res) => {
 
 exports.postOneDisease = (req, res) => {
   const docData = req.body;
-  const newMedi = {
+  const newDisease = {
     name: docData.name,
     description: docData.description,
     cause: docData.cause,
@@ -43,14 +44,14 @@ exports.postOneDisease = (req, res) => {
     created_at: new Date().toISOString()
   };
 
-  const { valid, errors } = validateAddMediData(newMedi);
+  const { valid, errors } = validateAddDiseaseData(newDisease);
 
   if (!valid) return res.status(400).json(errors);
 
   const docRef = db.ref("diseases");
   const newRef = docRef.push();
-  newMedi.id = newRef.key;
-  docRef.child(newRef.key).set(newMedi, err => {
+  newDisease.id = newRef.key;
+  docRef.child(newRef.key).set(newDisease, err => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Something went wrong!" });
@@ -79,25 +80,44 @@ exports.getDisease = (req, res) => {
     });
 };
 
-exports.deleteDisease = (req, res) => {
-  const document = db.doc(`/diseases/${req.params.diseaseId}`);
+exports.updateDisease = (req, res) => {
+  const docData = req.body;
+  const updatedDoc = {
+    id: req.params.id,
+    name: docData.name,
+    description: docData.description,
+    cause: docData.cause,
+    solution: docData.solution,
+    medication_goods: docData.medication_goods,
+    prepare_method: docData.prepare_method,
+    updated_at: new Date().toISOString()
+  };
 
-  document
-    .get()
-    .then(doc => {
-      if (!doc.exists) {
-        return res.status(404).json({ error: "Disease not found!" });
-      }
-      if (req.user.handle !== doc.data().userHandle) {
-        return res.status(403).json({ error: "Unauthorized" });
-      } else {
-        return document.delete();
-      }
-    })
+  const { valid, errors } = validateAddDiseaseData(updatedDoc);
+
+  if (!valid) return res.status(400).json(errors);
+
+  const docRef = db.ref("diseases");
+  docRef.child(req.params.id).set(updatedDoc, err => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Something went wrong!" });
+    } else {
+      console.log("Successfully updated!");
+      return res.status(200).json({ message: "Successfully updated!" });
+    }
+  });
+};
+
+exports.deleteDisease = (req, res) => {
+  const node = db.ref(`/diseases/${req.params.id}`);
+  node
+    .remove()
     .then(() => {
-      return res.json({ message: "Doctor deleted successfully!" });
+      return res.status(200).json({ message: "Disease successfully deleted!" });
     })
-    .catch(err => {
-      return res.status(500).json({ error: err.code });
+    .catch(error => {
+      console.log(error);
+      return res.status(404).json({ error: "Disease not found!" });
     });
 };

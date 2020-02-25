@@ -12,11 +12,11 @@ exports.getAllPlaces = (req, res) => {
         snapshot.forEach(doc => {
           let docData = doc.val();
           places.push({
-            placeId: docData.place_id,
-            name: docData.place_name,
+            id: docData.id,
+            name: docData.name,
             description: docData.description,
-            imageUrl: docData.image_url,
-            phoneNumber: docData.phone_number,
+            image_url: docData.image_url,
+            phone_number: docData.phone_number,
             duration: docData.duration,
             searchPlaceName: docData.search_place_name
           });
@@ -34,25 +34,27 @@ exports.getAllPlaces = (req, res) => {
 
 exports.postOnePlace = (req, res) => {
   const docData = req.body;
-  const newMedi = {
+  const newPlace = {
     image_url:
       docData.image_url ||
       "https://firebasestorage.googleapis.com/v0/b/wedagedara-717e9.appspot.com/o/no_user.png?alt=media",
     name: docData.name,
     duration: docData.duration,
     description: docData.description,
+    phone_number: docData.phone_number,
     search_name: docData.search_name,
     search_duration: docData.search_duration,
     created_at: new Date().toISOString()
   };
 
-  const { valid, errors } = validateAddPlaceData(newMedi);
+  const { valid, errors } = validateAddPlaceData(newPlace);
 
   if (!valid) return res.status(400).json(errors);
 
   const docRef = db.ref("places");
   const newRef = docRef.push();
-  docRef.child(newRef.key).set(newMedi, err => {
+  newPlace.id = newRef.key;
+  docRef.child(newRef.key).set(newPlace, err => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Something went wrong!" });
@@ -61,6 +63,53 @@ exports.postOnePlace = (req, res) => {
       return res.status(200).json({ message: "Successfully submitted!" });
     }
   });
+};
+
+exports.updatePlace = (req, res) => {
+  const docData = req.body;
+  const updatedDoc = {
+    id: req.params.id,
+    image_url:
+      docData.image_url ||
+      "https://firebasestorage.googleapis.com/v0/b/wedagedara-717e9.appspot.com/o/no_user.png?alt=media",
+    name: docData.name,
+    duration: docData.duration,
+    description: docData.description,
+    phone_number: docData.phone_number,
+    search_name: docData.search_name,
+    search_duration: docData.search_duration,
+    updated_at: new Date().toISOString()
+  };
+
+  const { valid, errors } = validateAddPlaceData(updatedDoc);
+
+  if (!valid) return res.status(400).json(errors);
+
+  const docRef = db.ref("places");
+  docRef.child(req.params.id).set(updatedDoc, err => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Something went wrong!" });
+    } else {
+      console.log("Successfully updated!");
+      return res.status(200).json({ message: "Successfully updated!" });
+    }
+  });
+};
+
+exports.deletePlace = (req, res) => {
+  const node = db.ref(`/places/${req.params.id}`);
+  node
+    .remove()
+    .then(() => {
+      return res
+        .status(200)
+        .json({ message: "Medical Center successfully deleted!" });
+    })
+    .catch(error => {
+      console.log(error);
+      return res.status(404).json({ error: "Medical Center not found!" });
+    });
 };
 
 exports.uploadPlaceImage = (req, res) => {
