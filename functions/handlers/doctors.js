@@ -16,6 +16,8 @@ exports.getAllDoctors = (req, res) => {
             image_url: docData.image_url,
             name: docData.name,
             location: docData.location,
+            latitude: docData.latitude,
+            longitude: docData.longitude,
             phone_number: docData.phone_number,
             description: docData.description,
             searchName: docData.search_name,
@@ -43,6 +45,8 @@ exports.postOneDoctor = (req, res) => {
     location: docData.location,
     description: docData.description,
     phone_number: docData.phone_number,
+    latitude: docData.latitude,
+    longitude: docData.longitude,
     search_name: docData.search_name,
     search_location: docData.search_location,
     created_at: new Date().toISOString()
