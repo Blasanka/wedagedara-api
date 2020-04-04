@@ -38,6 +38,8 @@ const {
   updatePlace
 } = require("./handlers/places");
 
+const { getAllMarkers, getSearchResult } = require("./handlers/commons");
+
 const {
   login,
   // addUserDetails,
@@ -73,6 +75,12 @@ app.post("/place", postOnePlace);
 app.post("/place/image", uploadPlaceImage);
 app.delete("/place/:id", deletePlace); //FBAuth
 app.put("/place/:id", updatePlace);
+
+// all the markers for map
+app.get("/locations", getAllMarkers);
+
+// search anything route
+app.get("/search/:text", getSearchResult);
 
 // Users handle route
 app.post("/login", login);

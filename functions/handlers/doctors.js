@@ -80,6 +80,8 @@ exports.updateDoctor = (req, res) => {
     name: docData.name,
     location: docData.location,
     description: docData.description,
+    latitude: docData.latitude,
+    longitude: docData.longitude,
     phone_number: docData.phone_number,
     search_name: docData.search_name,
     search_location: docData.search_location,
