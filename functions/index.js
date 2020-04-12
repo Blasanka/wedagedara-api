@@ -9,7 +9,7 @@ const {
   postOneDisease,
   getDisease,
   deleteDisease,
-  updateDisease
+  updateDisease,
 } = require("./handlers/diseases");
 
 const {
@@ -19,7 +19,7 @@ const {
   uploadDoctorImage,
   updateDoctorImage,
   getDoctor,
-  deleteDoctor
+  deleteDoctor,
 } = require("./handlers/doctors");
 
 const {
@@ -27,7 +27,7 @@ const {
   postOneMedication,
   uploadMedicationImage,
   deleteMedication,
-  updateMedication
+  updateMedication,
 } = require("./handlers/medication");
 
 const {
@@ -35,15 +35,19 @@ const {
   postOnePlace,
   uploadPlaceImage,
   deletePlace,
-  updatePlace
+  updatePlace,
 } = require("./handlers/places");
 
-const { getAllMarkers, getSearchResult } = require("./handlers/commons");
+const {
+  getAllMarkers,
+  getSearchResult,
+  getStatistics,
+} = require("./handlers/commons");
 
 const {
   login,
   // addUserDetails,
-  getAuthenticatedUser
+  getAuthenticatedUser,
 } = require("./handlers/users");
 const FBAuth = require("./util/fbAuth");
 
@@ -81,6 +85,8 @@ app.get("/locations", getAllMarkers);
 
 // search anything route
 app.get("/search/:text", getSearchResult);
+
+app.get("/stats", getStatistics);
 
 // Users handle route
 app.post("/login", login);
