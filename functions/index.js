@@ -40,6 +40,9 @@ const {
 
 const {
   getAllMarkers,
+  getDoctorsMarkers,
+  getMedicationMarkers,
+  getPlacesMarkers,
   getSearchResult,
   getStatistics,
 } = require("./handlers/commons");
@@ -82,6 +85,9 @@ app.put("/place/:id", updatePlace);
 
 // all the markers for map
 app.get("/locations", getAllMarkers);
+app.get("/locations/doctors", getDoctorsMarkers);
+app.get("/locations/medications", getMedicationMarkers);
+app.get("/locations/places", getPlacesMarkers);
 
 // search anything route
 app.get("/search/:text", getSearchResult);

@@ -1,8 +1,4 @@
-const { admin, db } = require("../util/admin");
-
-const firebaseConfig = require("../util/config");
-
-const { validateAddPlaceData } = require("../util/validators");
+const { db } = require("../util/admin");
 
 exports.getAllMarkers = (req, res) => {
   locations = [];
@@ -33,6 +29,78 @@ exports.getAllMarkers = (req, res) => {
           });
         });
         return res.json(locations.concat(places));
+      } else {
+        return res.status(400).json({ message: "No place found" });
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: err.code });
+  }
+};
+
+exports.getDoctorsMarkers = (req, res) => {
+  try {
+    db.ref("/doctors").on("value", (snapshot) => {
+      if (snapshot.exists()) {
+        let doctors = [];
+        snapshot.forEach((doc) => {
+          let docData = doc.val();
+          doctors.push({
+            id: docData.id,
+            latitude: docData.latitude,
+            longitude: docData.longitude,
+          });
+        });
+        return res.json(doctors);
+      } else {
+        return res.status(400).json({ message: "No doctors found" });
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: err.code });
+  }
+};
+
+exports.getMedicationMarkers = (req, res) => {
+  try {
+    db.ref("/medication").on("value", (snapshot) => {
+      if (snapshot.exists()) {
+        let medication = [];
+        snapshot.forEach((doc) => {
+          let docData = doc.val();
+          medication.push({
+            id: docData.id,
+            latitude: docData.latitude,
+            longitude: docData.longitude,
+          });
+        });
+        return res.json(medication);
+      } else {
+        return res.status(400).json({ message: "No medication found" });
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: err.code });
+  }
+};
+
+exports.getPlacesMarkers = (req, res) => {
+  try {
+    db.ref("/places").on("value", (snapshot) => {
+      if (snapshot.exists()) {
+        let places = [];
+        snapshot.forEach((doc) => {
+          let docData = doc.val();
+          places.push({
+            id: docData.id,
+            latitude: docData.latitude,
+            longitude: docData.longitude,
+          });
+        });
+        return res.json(places);
       } else {
         return res.status(400).json({ message: "No place found" });
       }

@@ -6,10 +6,10 @@ const { validateAddDoctorData } = require("../util/validators");
 
 exports.getAllDoctors = (req, res) => {
   try {
-    db.ref("/doctors").on("value", snapshot => {
+    db.ref("/doctors").on("value", (snapshot) => {
       if (snapshot.exists()) {
         let doctors = [];
-        snapshot.forEach(doc => {
+        snapshot.forEach((doc) => {
           let docData = doc.val();
           doctors.push({
             id: docData.id,
@@ -21,7 +21,7 @@ exports.getAllDoctors = (req, res) => {
             phone_number: docData.phone_number,
             description: docData.description,
             searchName: docData.search_name,
-            searchLocation: docData.search_location
+            searchLocation: docData.search_location,
           });
         });
         return res.json(doctors);
@@ -45,11 +45,11 @@ exports.postOneDoctor = (req, res) => {
     location: docData.location,
     description: docData.description,
     phone_number: docData.phone_number,
-    latitude: docData.latitude,
-    longitude: docData.longitude,
+    latitude: docData.latitude !== undefined ? docData.latitude : null,
+    longitude: docData.longitude !== undefined ? docData.longitude : null,
     search_name: docData.search_name,
     search_location: docData.search_location,
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
   };
 
   const { valid, errors } = validateAddDoctorData(newDoctor);
@@ -59,7 +59,7 @@ exports.postOneDoctor = (req, res) => {
   const docRef = db.ref("doctors");
   const newRef = docRef.push();
   newDoctor.id = newRef.key;
-  docRef.child(newRef.key).set(newDoctor, err => {
+  docRef.child(newRef.key).set(newDoctor, (err) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Something went wrong!" });
@@ -80,12 +80,12 @@ exports.updateDoctor = (req, res) => {
     name: docData.name,
     location: docData.location,
     description: docData.description,
-    latitude: docData.latitude,
-    longitude: docData.longitude,
+    latitude: docData.latitude !== undefined ? docData.latitude : null,
+    longitude: docData.longitude !== undefined ? docData.longitude : null,
     phone_number: docData.phone_number,
     search_name: docData.search_name,
     search_location: docData.search_location,
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
   };
 
   const { valid, errors } = validateAddDoctorData(updatedDoc);
@@ -93,7 +93,7 @@ exports.updateDoctor = (req, res) => {
   if (!valid) return res.status(400).json(errors);
 
   const docRef = db.ref("doctors");
-  docRef.child(req.params.id).set(updatedDoc, err => {
+  docRef.child(req.params.id).set(updatedDoc, (err) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Something went wrong!" });
@@ -118,7 +118,7 @@ exports.getDoctor = (req, res) => {
   let doctorData = {};
   db.ref(`/doctors/${req.params.doctorId}`)
     .get()
-    .then(doc => {
+    .then((doc) => {
       if (!doc.exists) {
         return res.status(404).json({ error: "Doctor not found!" });
       }
@@ -126,7 +126,7 @@ exports.getDoctor = (req, res) => {
       doctorData.doctorId = doc.id;
       return res.json(doctorData);
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
       return res.status(500).json({ error: err.code });
     });
@@ -139,7 +139,7 @@ exports.deleteDoctor = (req, res) => {
     .then(() => {
       return res.status(200).json({ message: "Doctor successfully deleted!" });
     })
-    .catch(error => {
+    .catch((error) => {
       console.log(error);
       return res.status(404).json({ error: "Doctor not found!" });
     });
@@ -176,18 +176,18 @@ exports.uploadDoctorImage = (req, res) => {
         resumable: false,
         metadata: {
           metadata: {
-            contentType: imageToBeUploaded.mimetype
-          }
-        }
+            contentType: imageToBeUploaded.mimetype,
+          },
+        },
       })
       .then(() => {
         const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${imageFileName}?alt=media`;
         return imageUrl;
       })
-      .then(url => {
+      .then((url) => {
         return res.json({ image_url: url });
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         return res.status(500).json({ error: err.code });
       });
@@ -197,7 +197,7 @@ exports.uploadDoctorImage = (req, res) => {
 
 exports.updateDoctorImage = (req, res) => {
   const imageUrl = {
-    imageUrl: req.body.imageUrl
+    imageUrl: req.body.imageUrl,
   };
 
   db.doc(`doctor/${req.body.doctorId}`)
@@ -205,7 +205,7 @@ exports.updateDoctorImage = (req, res) => {
     .then(() => {
       return res.json({ message: "Image uploaded succesfully!" });
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
       return res.status(500).json({ error: "Something went wrong!" });
     });

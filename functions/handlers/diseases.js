@@ -36,6 +36,7 @@ exports.postOneDisease = (req, res) => {
   const docData = req.body;
   const newDisease = {
     name: docData.name,
+    search_name: docData.name,
     description: docData.description,
     cause: docData.cause,
     solution: docData.solution,
@@ -85,6 +86,7 @@ exports.updateDisease = (req, res) => {
   const updatedDoc = {
     id: req.params.id,
     name: docData.name,
+    search_name: docData.name,
     description: docData.description,
     cause: docData.cause,
     solution: docData.solution,
